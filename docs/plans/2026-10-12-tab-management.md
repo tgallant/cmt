@@ -6,7 +6,7 @@
 
 **Architecture:** Use a persistent Firefox background page as the only source of tab data and tab actions. Share one small, bundled interface between an isolated in-page frame, a toolbar popup, and a full manager page. Keep search and action rules in pure modules.
 
-**Tech stack:** JavaScript modules, Firefox Manifest V2 WebExtensions, esbuild, Node test runner, Selenium, geckodriver, web-ext.
+**Tech stack:** JavaScript modules, Firefox Manifest V2 WebExtensions, esbuild, Node test runner, Selenium, geckodriver, Mozilla addons-linter, ZIP.js.
 
 ## Design decisions
 
@@ -49,7 +49,7 @@ Write failing DOM tests for search, keyboard navigation, mode switching, selecti
 ## Task 5: Firefox acceptance and release
 
 Files: `tests/firefox.test.js`, `scripts/build.mjs`, `README.md`, `docs/TESTING.md`, `docs/userChrome.css`, `.github/workflows/ci.yml`.
-Build an unsigned ZIP. Run `web-ext lint`. Test the installed extension in a new, disposable Firefox profile with Selenium. Exercise real tab operations, overlay and fallback, keyboard input, and a 995-tab fixture. Record measured performance and test outcomes. Document installation, shortcuts, permissions, limits, and optional chrome hiding. Do not claim manual interoperability checks were run unless they were run.
+Build an unsigned ZIP. Run `addons-linter dist --warnings-as-errors`. Test the installed extension in a new, disposable Firefox profile with Selenium. Exercise real tab operations, overlay and fallback, keyboard input, and a 995-tab fixture. Record measured performance and test outcomes. Document installation, shortcuts, permissions, limits, and optional chrome hiding. Do not claim manual interoperability checks were run unless they were run.
 
 ## Verification commands
 
@@ -60,3 +60,13 @@ Build an unsigned ZIP. Run `web-ext lint`. Test the installed extension in a new
 - `npm run package`: produces `artifacts/cmt.zip`.
 
 Review the final diff, rerun all checks, and map each goal to evidence in `GOALS.md`.
+
+## Implementation notes
+
+- Use Mozilla addons-linter directly and ZIP.js for packaging. This removes unused runner and Android tools from development dependencies. The final dependency audit is clean.
+- Use Control-based shortcuts on macOS. Option-based shortcuts can be consumed by text input.
+- Open the popup synchronously for known restricted pages. Use Firefox's command event tab argument rather than a later current-window query.
+- Authorize the overlay with a per-tab token. Keep its frame in a closed shadow root. Revoke access when it closes.
+- Make other controls inert while close confirmation is open.
+- Install the unpacked build in the disposable browser test. Packed temporary geckodriver installation had content-script file-descriptor errors on macOS. Validate the ZIP separately.
+- Final evidence uses a separate Firefox 143.0 copy. Do not use the user's live browser or profile.

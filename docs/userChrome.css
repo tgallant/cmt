@@ -1,0 +1,14 @@
+/* Optional Firefox profile CSS. Keep a backup of your existing file. */
+
+/* Hide the horizontal tab strip. Keep the navigation toolbar visible. */
+#TabsToolbar {
+  display: none !important;
+}
+
+/* Hide sidebar containers, including Tree Style Tab and vertical tabs.
+   Remove this block if you want bookmark or history sidebars. */
+#sidebar-main,
+#sidebar-box,
+#sidebar-splitter {
+  display: none !important;
+}

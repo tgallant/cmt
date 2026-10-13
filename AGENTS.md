@@ -10,7 +10,7 @@ Use ASD-STE100 principles in all user-facing text: short sentences, simple words
 
 ## Code and design
 
-Use JavaScript ES modules, two-space indentation, semicolons, and named exports. Keep search and safety rules independent of the DOM and browser API. Use the background service for all tab actions. Do not render tab data as HTML. No remote code, telemetry, or runtime dependencies. Use a monospace font, neutral dark colors, thin borders, visible focus, and a restrained accent. Keep the interface usable with a keyboard and a pointer.
+Use JavaScript ES modules, two-space indentation, semicolons, and named exports. Keep search and safety rules independent of the DOM and browser API. Use the background service for all tab actions. Keep overlay authorization in `src/access.js`. Do not expose an ungated tab-data page as a web-accessible resource. Do not render tab data as HTML. No remote code, telemetry, or runtime dependencies. Use a monospace font, neutral dark colors, thin borders, visible focus, and a restrained accent. Keep the interface usable with a keyboard and a pointer.
 
 ## Process
 
@@ -24,7 +24,11 @@ Use JavaScript ES modules, two-space indentation, semicolons, and named exports.
 
 ## Safety and limits
 
-Keep exact URL equality for duplicates. Prefer pinned and active tabs as duplicate keepers. Do not close pinned tabs without explicit consent. Recheck tab state when an action runs. Report per-tab failures. Do not silently normalize URLs, restore discarded pages, or close tabs to make tests pass. Treat unknown last-access times as unknown, not old. Firefox chrome cannot be hidden by a WebExtension; the optional CSS is a separate user step. Signed installation and real interoperability checks are separate from automated tests.
+Keep exact URL equality for duplicates. Prefer pinned and active tabs as duplicate keepers. Do not close pinned tabs without explicit consent. Recheck tab state when an action runs. Report per-tab failures. Do not silently normalize URLs, restore discarded pages, or close tabs to make tests pass. Treat unknown last-access times as unknown, not old. Firefox chrome cannot be hidden by a WebExtension; the optional CSS is a separate user step. Signed installation and real interoperability checks are separate from automated tests. Tree Style Tab can close children when a parent closes; document this risk rather than claiming CMT controls it.
+
+## Browser test notes
+
+Use `FIREFOX_BINARY` for a separate Firefox executable when the installed browser is unstable. The verified browser is Firefox 143.0. Tests install unpacked `dist/` through Firefox's temporary add-on API and validate the ZIP separately. Packed temporary geckodriver installs had content-script file-descriptor errors on macOS. Use the command event's tab argument. Open known restricted-page popups before an async wait. macOS global shortcuts use MacCtrl, not Option, to avoid text composition. Inner view shortcuts use Control/Command+Shift+1/2/3 because Control/Command+1/2/3 is reserved for Firefox tabs.
 
 ## Commands
 

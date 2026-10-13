@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "CMT — Tab Console",
+  "version": "0.1.0",
+  "description": "Search, switch, and clean up open tabs with a keyboard-first tab console.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cmt@local.example",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  },
+  "permissions": ["tabs", "activeTab"],
+  "background": { "scripts": ["background.js"], "persistent": true },
+  "browser_action": { "default_title": "Open CMT tab console", "default_popup": "popup.html" },
+  "commands": {
+    "open-palette": { "suggested_key": { "default": "Alt+Shift+K", "mac": "MacCtrl+Shift+K" }, "description": "Open the tab palette" },
+    "previous-tab": { "suggested_key": { "default": "Alt+Shift+J", "mac": "MacCtrl+Shift+J" }, "description": "Switch to the previous tab" }
+  },
+  "web_accessible_resources": ["overlay.html"],
+  "content_security_policy": "script-src 'self'; object-src 'none'; connect-src 'none';"
+}
