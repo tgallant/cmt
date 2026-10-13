@@ -63,7 +63,7 @@ An old tab is a tab that you have not accessed for the chosen time. This is not 
 
 Sort by relevance, recent first, oldest first, title, host, or tab order. The **Recent** view uses recent-first order unless you choose another sort. **Reset filters** clears filters and restores relevance sort. It keeps the search term and selected view.
 
-CMT shows 100 results per page. Use **Next page** and **Previous page** to view more results. The count includes all matches.
+CMT shows 100 results per page. Use **Next page** and **Previous page** to view more results. The count includes all matches. The results area scrolls. The palette controls and page buttons stay in place.
 
 ## Select tabs
 
@@ -94,6 +94,8 @@ To close tabs:
 3. Review the warning.
 4. Leave **Also close pinned tabs** off to protect pinned tabs.
 5. Select **Close tabs** to confirm, or **Cancel** to stop.
+
+If an action skips or fails to change tabs, select **Skipped or failed tabs** below the page buttons. The report opens above those buttons. Select the same heading to close it. **Keys and safety** opens in the same area. Only one of these panels can be open at a time.
 
 CMT checks pinned state again before each close request. It does not directly close protected pinned tabs. This protection applies to CMT's requests, not another extension's close rules. It reports a tab that was already closed or could not be changed. A failed request does not stop the other requests.
 

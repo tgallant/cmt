@@ -10,10 +10,11 @@ export async function mountUI(doc, api) {
     <nav aria-label="Tab view"><button data-mode="all" aria-pressed="true">1 All</button><button data-mode="recent" aria-pressed="false">2 Recent</button><button data-mode="pinned" aria-pressed="false">3 Pinned</button><button id="previous-tab">Previous tab</button></nav>
     <label class="search-label" for="search">Search titles and URLs</label><input id="search" type="search" autocomplete="off" spellcheck="false" placeholder="Type letters in order…" aria-controls="results">
     <details id="filters"><summary>Filters and sort</summary><div class="filter-grid">
-      <label>Window<select id="window-filter"><option value="">All windows</option><option value="current">Current window</option></select></label>
-      <label>Host<input id="host-filter" placeholder="example.org"></label>
-      <label>Not accessed for (days)<input id="age-filter" type="number" min="1" placeholder="30"></label>
-      <label>Sort<select id="sort"><option value="relevance">Relevance</option><option value="recent">Recent first</option><option value="oldest">Oldest first</option><option value="title">Title</option><option value="host">Host</option><option value="order">Tab order</option></select></label>
+      <label class="filter-field"><span>Window</span><select id="window-filter"><option value="">All windows</option><option value="current">Current window</option></select></label>
+      <label class="filter-field"><span>Host</span><input id="host-filter" placeholder="example.org"></label>
+      <label class="filter-field"><span>Not accessed for (days)</span><input id="age-filter" type="number" min="1" placeholder="30"></label>
+      <label class="filter-field"><span>Sort</span><select id="sort"><option value="relevance">Relevance</option><option value="recent">Recent first</option><option value="oldest">Oldest first</option><option value="title">Title</option><option value="host">Host</option><option value="order">Tab order</option></select></label>
+    </div><div class="filter-options">
       <label><input id="pinned-filter" type="checkbox">Pinned</label><label><input id="discarded-filter" type="checkbox">Discarded</label><label><input id="audible-filter" type="checkbox">Audible</label><label><input id="duplicate-filter" type="checkbox">Exact duplicates</label>
       <button id="reset-filters">Reset filters</button>
     </div></details>
@@ -22,9 +23,10 @@ export async function mountUI(doc, api) {
     <section class="actions" aria-label="Tab actions"><button data-action="pin">Pin</button><button data-action="unpin">Unpin</button><button data-action="mute">Mute</button><button data-action="unmute">Unmute</button><button data-action="discard">Discard</button><button data-action="close" class="danger">Close…</button></section>
     <section id="confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden tabindex="-1"><h2 id="confirm-title">Close selected tabs?</h2><p id="confirm-count"></p><p>Unsaved page data can be lost. Pinned tabs stay open by default.</p><label><input type="checkbox" id="allow-pinned">Also close pinned tabs</label><div><button id="cancel-close">Cancel</button><button id="confirm-close" class="danger">Close tabs</button></div></section>
     <p id="result-count"></p><ul id="results" aria-label="Matching tabs"></ul>
-    <footer><button id="page-back">← Previous page</button><span id="page-count"></span><button id="page-next">Next page →</button></footer>
-    <p id="status" role="status" aria-live="polite"></p><pre id="failures" hidden></pre>
-    <details class="help"><summary>Keys and safety</summary><p>↑ ↓ Move · Enter Switch · Space Select · Shift+Space Select range</p><p>Ctrl/Command+Shift+1/2/3 View · Ctrl/Command+Shift+A Select all matches · Ctrl/Command+K Search · Esc Close</p><p>Selection stays when filters change. Actions affect all selected tabs. Discard frees memory. It does not close a tab. Active and audible tabs are not discarded.</p><p>Duplicate extras keep one exact URL copy. Pinned copies come first, then active copies, then recent copies. Age uses last access, not creation time.</p></details>`;
+    <section class="console-footer" aria-label="Pages and help"><footer><button id="page-back">← Previous page</button><span id="page-count"></span><button id="page-next">Next page →</button></footer>
+    <p id="status" role="status" aria-live="polite"></p>
+    <section class="details-bar" aria-label="Help and action reports"><details id="failures-panel" class="panel-details" name="console-info" hidden><summary>Skipped or failed tabs</summary><pre id="failures" class="details-content" hidden></pre></details>
+    <details class="help panel-details" name="console-info"><summary>Keys and safety</summary><div class="details-content"><p>↑ ↓ Move · Enter Switch · Space Select · Shift+Space Select range</p><p>Ctrl/Command+Shift+1/2/3 View · Ctrl/Command+Shift+A Select all matches · Ctrl/Command+K Search · Esc Close</p><p>Selection stays when filters change. Actions affect all selected tabs. Discard frees memory. It does not close a tab. Active and audible tabs are not discarded.</p><p>Duplicate extras keep one exact URL copy. Pinned copies come first, then active copies, then recent copies. Age uses last access, not creation time.</p></div></details></section></section>`;
   const $ = (selector) => doc.querySelector(selector);
   let tabs = [];
   let windowId;
@@ -125,6 +127,7 @@ export async function mountUI(doc, api) {
       status(`${action}: ${result.done.length} done, ${result.skipped.length} skipped, ${result.failed.length} failed.`);
       $('#failures').textContent = issues.map((issue) => `Tab ${issue.id}: ${issue.reason}`).join('\n');
       $('#failures').hidden = !issues.length;
+      $('#failures-panel').hidden = !issues.length;
       if (action === 'activate' && result.done.length) api.dismiss();
       await refresh();
     } catch (error) { status(`Action failed: ${error.message}`); }

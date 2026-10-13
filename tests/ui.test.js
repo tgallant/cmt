@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { mountUI } from '../src/ui.js';
 
-async function setup(count = 5) {
+async function setup(count = 5, result) {
   const dom = new JSDOM('<main id="app"></main>', { url: 'https://test/' });
   const tabs = Array.from({ length: count }, (_, n) => ({ id: n + 1, windowId: 1, title: n === 0 ? '<img src=x onerror=alert(1)>' : `Reference ${n}`, url: `https://example.org/${n}`, pinned: n === 1, lastAccessed: n }));
   const calls = [];
   const ui = await mountUI(dom.window.document, {
     snapshot: async () => ({ tabs, windowId: 1 }),
-    act: async (action) => { calls.push(action); return { done: action.ids, skipped: [], failed: [] }; },
+    act: async (action) => { calls.push(action); return result ?? { done: action.ids, skipped: [], failed: [] }; },
     dismiss: () => calls.push('dismiss'), manager: () => calls.push('manager'), previous: async () => {},
   });
   const doc = dom.window.document;
@@ -19,6 +19,21 @@ async function setup(count = 5) {
   return { doc, ui, calls, click, input, key, dom };
 }
 const tick = () => new Promise((resolve) => setImmediate(resolve));
+
+test('action issues remain readable in a report that clears after success', async () => {
+  const result = { done: [], skipped: [], failed: [{ id: 1, reason: 'Tab is gone.' }] };
+  const { doc, click } = await setup(5, result);
+  click('#select-all');
+  click('[data-action="pin"]');
+  await tick();
+  assert.equal(doc.querySelector('#failures-panel').hidden, false);
+  assert.match(doc.querySelector('#failures').textContent, /Tab 1: Tab is gone/);
+  result.failed = [];
+  click('[data-action="pin"]');
+  await tick();
+  assert.equal(doc.querySelector('#failures-panel').hidden, true);
+  assert.equal(doc.querySelector('#failures').hidden, true);
+});
 
 test('titles render as text and search filters results', async () => {
   const { doc, input } = await setup();

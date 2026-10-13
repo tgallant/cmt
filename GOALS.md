@@ -13,7 +13,7 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 5. Select one tab, a range, or all matching tabs. Keep selection independent of the visible page.
 6. Pin, unpin, mute, unmute, discard, and close selected tabs. Require confirmation to close. Protect pinned tabs by default. Report failures.
 7. Find exact duplicate URLs. Select extra copies while keeping a pinned or active copy first. Find tabs not accessed for a chosen number of days.
-8. Use a modern terminal-style interface. Support keyboard navigation, visible focus, labels, and readable status text.
+8. Use a modern terminal-style interface. Support keyboard navigation, visible focus, labels, and readable status text. Align filter fields and fit the palette to its viewport. Keep scrolling inside the results, not the whole palette.
 9. Work with standard Firefox tab APIs. Do not need Tree Style Tab or Auto Tab Discard. Do not change their settings or trees.
 10. Supply installation steps, permissions, shortcuts, and optional instructions to hide Firefox's tab strip. Explain how to undo those changes.
 
@@ -33,6 +33,7 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 | A10 | Untrusted titles appear as text. Private-tab metadata is not stored. No network services or host access at startup are required. | DOM, service, manifest tests, and code review |
 | A11 | Build, unit tests, Firefox tests, and manifest lint pass. The ZIP contains all runtime files. | Verification commands |
 | A12 | User instructions cover install, shortcuts, safety, permissions, chrome hiding, rollback, and Firefox limits in plain language. | Documentation review |
+| A13 | Filter fields have equal size and align in each row. Overlay, popup document, and manager fit the tested viewports with no outer scroll or clipped controls. Results scroll independently. Expanded filters, help, and reports keep page buttons visible. | Firefox geometry and screenshot checks |
 
 ## Platform boundaries
 
@@ -43,6 +44,6 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 
 ## Results
 
-All 12 automated or documentation acceptance checks pass. `npm run verify` passes 24 tests and reports no lint errors, warnings, or notices. The Firefox suite passes 7 tests with a 995-tab fixture in Firefox 143.0. Build, ZIP validation, and the full dependency audit pass. See `docs/TESTING.md` for the acceptance map and environment.
+All 13 automated or documentation acceptance checks pass. `npm run verify` passes 25 tests and reports no lint errors, warnings, or notices. The Firefox suite passes 12 tests with a 995-tab fixture and layout checks in Firefox 143.0. Build, ZIP validation, and the full dependency audit pass. See `docs/TESTING.md` for the acceptance map and environment.
 
 The platform boundaries above still apply. Signed installation, optional profile CSS, screen-reader checks, and the user's Tree Style Tab and Auto Tab Discard rules are manual release checks. They are not claimed as completed.

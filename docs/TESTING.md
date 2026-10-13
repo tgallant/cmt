@@ -27,21 +27,37 @@ The test driver is geckodriver 0.37.1. You can set `GECKODRIVER_VERSION` to test
 
 Verified on macOS ARM64 with Node.js 26.10.0, Firefox 143.0, and geckodriver 0.37.1.
 
-- Model, service, access, manifest, and interface tests: 24 passed.
-- Real Firefox acceptance tests: 7 passed, including the parent test.
+- Model, service, access, manifest, and interface tests: 25 passed.
+- Real Firefox acceptance tests: 12 passed, including the parent test.
 - Mozilla add-on lint: 0 errors, 0 warnings, 0 notices.
 - Dependency audit: 0 known vulnerabilities, including development tools.
 - Build and ZIP creation: passed.
 - The ZIP has the eight required runtime files and no development tools.
 - The large Firefox fixture has 995 non-CMT tabs. The interface renders at most 100 rows at a time. Selection covers all 995 tabs.
 - The warmed 995-tab model query is below the 200 ms limit. The test prints the measured time on each run.
-- `artifacts/manager.png` is a screenshot from the real Firefox test. The terminal-style interface was reviewed from this image.
+- Screenshots from the real Firefox tests are in `artifacts/manager.png`, `artifacts/overlay-normal.png`, `artifacts/overlay-short.png`, and `artifacts/popup-layout.png`. Help screenshots have a `-help` suffix. These images were reviewed.
 
 The Firefox tests use real keyboard events for the palette and previous-tab commands. They check the registered keys. They check focus after Escape. They also check a popup document on a restricted page.
 
 A packed temporary installation through geckodriver produced content-script file-descriptor errors on this macOS system. The test installs the unpacked `dist/` folder through Firefox's temporary add-on API. It separately checks the ZIP contents. This is the same build used in the installation guide. These tests do not prove signed ZIP installation.
 
 Firefox Developer Edition 156.0 was present, but it had intermittent startup failures in this environment. The final browser evidence uses a separate Firefox 143.0 copy and a fresh profile. No user profile was used. Do not treat the initial startup failures as passing checks.
+
+## Layout regression checks
+
+The layout checks use Firefox's real control sizes and scroll measurements, not a simulated DOM layout.
+
+- Text, number, and select fields have equal size and align in each grid row.
+- At a 1073-by-919 manager viewport, the four fields are each 248 pixels wide and 34 pixels high.
+- At a 560-by-900 manager viewport, filters use two equal columns. Fields align within each row.
+- The overlay is checked in 1073-by-919 and 850-by-760 parent-page viewports. The overlay frame is smaller than its parent page.
+- The popup document is checked at 760 by 590 pixels. The native popup opening is checked separately.
+- Both the document and main container fit. Tests check that hidden overflow does not simply clip controls.
+- Results keep a positive height and can scroll without scrolling the document.
+- Opening filters, help, or a long failure report does not add an outer scrollbar. Page buttons remain visible and work.
+- Help and failure reports open above the page buttons. Only one report panel is open at a time.
+
+These tests reproduce the reported height mismatch and outer scrollbar before the fix. They check normal, short, and narrow layouts. They do not prove that every screen size, font setting, or zoom level fits. The manual zoom and screen-reader checks below still apply.
 
 ## Acceptance map
 
@@ -59,6 +75,7 @@ Firefox Developer Edition 156.0 was present, but it had intermittent startup fai
 | A10 | Title escaping, live private-data fixture, overlay authorization, minimal manifest, and source review |
 | A11 | Test commands, build, lint, ZIP content check, and audit |
 | A12 | Review of `README.md`, `docs/CHROME.md`, and the CSS warnings |
+| A13 | Firefox field dimensions, document and main overflow, independently scrollable results, visible page buttons, and layout screenshots |
 
 ## Manual checks before a large cleanup
 

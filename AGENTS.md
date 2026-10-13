@@ -10,7 +10,7 @@ Use ASD-STE100 principles in all user-facing text: short sentences, simple words
 
 ## Code and design
 
-Use JavaScript ES modules, two-space indentation, semicolons, and named exports. Keep search and safety rules independent of the DOM and browser API. Use the background service for all tab actions. Keep overlay authorization in `src/access.js`. Do not expose an ungated tab-data page as a web-accessible resource. Do not render tab data as HTML. No remote code, telemetry, or runtime dependencies. Use a monospace font, neutral dark colors, thin borders, visible focus, and a restrained accent. Keep the interface usable with a keyboard and a pointer.
+Use JavaScript ES modules, two-space indentation, semicolons, and named exports. Keep search and safety rules independent of the DOM and browser API. Use the background service for all tab actions. Keep overlay authorization in `src/access.js`. Do not expose an ungated tab-data page as a web-accessible resource. Do not render tab data as HTML. No remote code, telemetry, or runtime dependencies. Use a monospace font, neutral dark colors, thin borders, visible focus, and a restrained accent. Keep the interface usable with a keyboard and a pointer. Constrain the interface to its viewport. Give the results the remaining height with `min-height: 0`; do not use a fixed `vh` result-list limit that ignores the controls. Keep scrolling in the results and size native filter fields explicitly. Help and reports must not enlarge the document or cover page buttons. Test actual Firefox geometry with filters open, including short and narrow viewports. Do not hide overflow as a substitute for making controls fit.
 
 ## Process
 

@@ -65,6 +65,47 @@ test('Firefox acceptance: real tabs, keyboard palette, fallback, and 995 tabs', 
       await driver.actions().keyDown(modifier).keyDown(Key.SHIFT).sendKeys(letter.toUpperCase()).keyUp(Key.SHIFT).keyUp(modifier).perform();
     } finally { await driver.setContext('content'); }
   };
+  async function setViewport(width, height) {
+    const chromeSize = await driver.executeScript('return {width: outerWidth - innerWidth, height: outerHeight - innerHeight};');
+    await driver.manage().window().setRect({ width: width + chromeSize.width, height: height + chromeSize.height });
+    await driver.wait(async () => driver.executeScript('return Math.abs(innerWidth - arguments[0]) <= 1 && Math.abs(innerHeight - arguments[1]) <= 1;', width, height), 10000);
+  }
+  async function layout() {
+    return driver.executeScript(`
+      const bounds = (el) => {
+        const rect = el.getBoundingClientRect();
+        return {top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height};
+      };
+      const app = document.querySelector('#app');
+      return {
+        viewport: {width: innerWidth, height: innerHeight},
+        document: {height: document.scrollingElement.scrollHeight, width: document.scrollingElement.scrollWidth},
+        app: {height: app.scrollHeight, width: app.scrollWidth, clientHeight: app.clientHeight, clientWidth: app.clientWidth},
+        results: {...bounds(document.querySelector('#results')), scrollHeight: document.querySelector('#results').scrollHeight, clientHeight: document.querySelector('#results').clientHeight},
+        controls: ['header', 'nav', '#search', '#filters', '.selection-bar', '.actions', '#result-count', 'footer', '.help'].map(selector => ({selector, ...bounds(document.querySelector(selector))})),
+        fields: ['window-filter', 'host-filter', 'age-filter', 'sort'].map(id => ({id, ...bounds(document.getElementById(id))})),
+        checks: [...document.querySelectorAll('#filters input[type=checkbox]')].map(bounds),
+        panels: [...document.querySelectorAll('.panel-details[open] .details-content')].map(bounds),
+      };
+    `);
+  }
+  function assertFits(metrics) {
+    assert.ok(metrics.document.height <= metrics.viewport.height + 1, `Document must not scroll: ${JSON.stringify(metrics)}`);
+    assert.ok(metrics.document.width <= metrics.viewport.width + 1, 'Document must not scroll sideways');
+    assert.ok(metrics.app.height <= metrics.app.clientHeight + 1, 'Controls must fit, not be clipped inside the app');
+    assert.ok(metrics.app.width <= metrics.app.clientWidth + 1, 'Controls must not overflow sideways');
+    assert.ok(metrics.results.height >= 48, 'At least one result must fit');
+    assert.ok(metrics.results.scrollHeight > metrics.results.clientHeight, 'Only the results list needs to scroll');
+    const footer = metrics.controls.find((control) => control.selector === 'footer');
+    for (const panel of metrics.panels) {
+      assert.ok(panel.bottom <= footer.top, 'Help and reports must not cover the page buttons');
+      assert.ok(panel.top >= 0, 'Help and reports must stay within the palette');
+    }
+    for (const control of metrics.controls) {
+      assert.ok(control.top >= -1 && control.bottom <= metrics.viewport.height + 1, `${control.selector} must remain visible`);
+      assert.ok(control.left >= -1 && control.right <= metrics.viewport.width + 1, `${control.selector} must fit horizontally`);
+    }
+  }
   const snapshot = () => send({ type: 'snapshot' });
   const action = (action, ids, extra = {}) => send({ type: 'act', request: { action, ids, ...extra } });
   const state = await invoke(`
@@ -178,5 +219,94 @@ test('Firefox acceptance: real tabs, keyboard palette, fallback, and 995 tabs', 
     await driver.wait(async () => (await driver.findElements(By.css('.tab-row'))).length === 100, 10000);
     await writeFile('artifacts/manager.png', await driver.takeScreenshot(), 'base64');
     console.log('Firefox version:', (await driver.getCapabilities()).get('browserVersion'));
+  });
+
+  await t.test('filter fields align and the manager fits its viewport', async () => {
+    await driver.get(`${origin}/manager.html`);
+    await setViewport(1073, 919);
+    await driver.wait(until.elementLocated(By.css('.tab-row')), 10000);
+    await driver.findElement(By.css('#filters summary')).click();
+    const metrics = await layout();
+    console.log('Filter fields:', metrics.fields.map(({id, width, height, top}) => `${id}: ${width}×${height} at y=${top}`).join(', '));
+    for (const field of metrics.fields) {
+      assert.ok(Math.abs(field.height - metrics.fields[0].height) <= 1, `${field.id} must have the same height as the select`);
+      assert.ok(Math.abs(field.width - metrics.fields[0].width) <= 1, `${field.id} must have the same width as the select`);
+      assert.ok(Math.abs(field.top - metrics.fields[0].top) <= 1, `${field.id} must align with the select`);
+    }
+    for (const check of metrics.checks) assert.equal(check.height, metrics.checks[0].height);
+    assertFits(metrics);
+  });
+
+  await t.test('narrow filter rows stay aligned without horizontal overflow', async () => {
+    await driver.get(`${origin}/manager.html`);
+    await setViewport(560, 900);
+    await driver.wait(until.elementLocated(By.css('.tab-row')), 10000);
+    await driver.findElement(By.css('#filters summary')).click();
+    const metrics = await layout();
+    for (const field of metrics.fields) {
+      assert.ok(Math.abs(field.width - metrics.fields[0].width) <= 1);
+      assert.equal(field.height, metrics.fields[0].height);
+    }
+    assert.equal(metrics.fields[0].top, metrics.fields[1].top);
+    assert.equal(metrics.fields[2].top, metrics.fields[3].top);
+    assert.ok(metrics.fields[2].top > metrics.fields[0].top);
+    assertFits(metrics);
+  });
+
+  for (const size of [{name: 'normal', width: 1073, height: 919}, {name: 'short', width: 850, height: 760}]) {
+    await t.test(`${size.name} overlay scrolls results, not the palette`, async () => {
+      await driver.switchTo().defaultContent();
+      await driver.get(`${base}/layout`);
+      await setViewport(size.width, size.height);
+      await click('focus');
+      await shortcut();
+      const host = await driver.wait(until.elementLocated(By.id('cmt-overlay')), 10000);
+      const frame = await (await host.getShadowRoot()).findElement(By.css('iframe'));
+      await driver.switchTo().frame(frame);
+      await driver.wait(until.elementLocated(By.css('.tab-row')), 10000);
+      assertFits(await layout());
+      await driver.findElement(By.css('#filters summary')).click();
+      assertFits(await layout());
+      await writeFile(`artifacts/overlay-${size.name}.png`, await driver.takeScreenshot(), 'base64');
+      await driver.findElement(By.css('.help summary')).click();
+      assertFits(await layout());
+      await click('page-next');
+      assert.match(await driver.findElement(By.id('page-count')).getText(), /Page 2/);
+      assertFits(await layout());
+      await click('page-back');
+      await driver.executeScript('document.querySelector("#results").scrollTop = 200;');
+      assert.ok(await driver.executeScript('return document.querySelector("#results").scrollTop > 0 && document.scrollingElement.scrollTop === 0;'));
+      await writeFile(`artifacts/overlay-${size.name}-help.png`, await driver.takeScreenshot(), 'base64');
+      await driver.findElement(By.id('search')).sendKeys(Key.ESCAPE);
+      await driver.switchTo().defaultContent();
+    });
+  }
+
+  await t.test('popup filters, help, and failure details fit without a page scrollbar', async () => {
+    await driver.switchTo().defaultContent();
+    await driver.get(`${origin}/popup.html`);
+    await setViewport(760, 590);
+    await driver.wait(until.elementLocated(By.css('.tab-row')), 10000);
+    assertFits(await layout());
+    await driver.findElement(By.css('#filters summary')).click();
+    assertFits(await layout());
+    await driver.findElement(By.css('.help summary')).click();
+    assertFits(await layout());
+    await driver.findElement(By.css('.help summary')).click();
+    await driver.executeScript(`
+      document.querySelector('#status').textContent = 'close: 0 done, 0 skipped, 100 failed.';
+      const failures = document.querySelector('#failures');
+      failures.textContent = Array.from({length: 100}, (_, n) => 'Tab ' + n + ': Tab is gone.').join('\\n');
+      failures.hidden = false;
+      const panel = document.querySelector('#failures-panel');
+      if (panel) { panel.hidden = false; panel.open = true; }
+    `);
+    assertFits(await layout());
+    await driver.findElement(By.css('.help summary')).click();
+    assert.equal((await driver.findElements(By.css('.panel-details[open]'))).length, 1, 'Help and reports must not overlap');
+    assertFits(await layout());
+    await driver.findElement(By.css('#failures-panel summary')).click();
+    assert.equal((await driver.findElements(By.css('.panel-details[open]'))).length, 1);
+    await writeFile('artifacts/popup-layout.png', await driver.takeScreenshot(), 'base64');
   });
 });
