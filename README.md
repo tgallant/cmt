@@ -46,6 +46,8 @@ You can also click a result. CMT focuses its window. A discarded tab loads when 
 
 Search uses fuzzy matching. Type letters in the same order as the title or URL. You do not need to type adjacent letters. For example, `ffdoc` can match `Firefox documentation`. Each space-separated word must match the title or URL.
 
+CMT finds the strongest match for each word. It favors adjacent letters and word starts. Long gaps reduce the score. Weak matches do not appear in the results. Titles and complete URLs use the same rules, including URL query strings and fragments. With **Relevance** sort, words that match without gaps come first.
+
 The previous-tab command uses recent tab changes in the current window. It can switch back and forth between two tabs. This record resets when the extension restarts. It does not restore your full past navigation record.
 
 ## Filter and sort

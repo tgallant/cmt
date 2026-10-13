@@ -309,4 +309,44 @@ test('Firefox acceptance: real tabs, keyboard palette, fallback, and 995 tabs', 
     assert.equal((await driver.findElements(By.css('.panel-details[open]'))).length, 1);
     await writeFile('artifacts/popup-layout.png', await driver.takeScreenshot(), 'base64');
   });
+
+  await t.test('search rejects weak matches and uses the best alignment in full URLs and titles', async () => {
+    await driver.get(`${origin}/manager.html`);
+    await driver.wait(until.elementLocated(By.id('search')), 10000);
+    const loose = [...'youtube'].join('x'.repeat(30));
+    const fixtures = await invoke(`
+      const rows = [
+        {title: args[1], url: args[0] + '/search-noise'},
+        {title: 'Unrelated checkout', url: args[0] + '/?token=' + args[1]},
+        {title: 'YouTube guide', url: args[0] + '/search-exact'},
+        {title: 'you t u b e', url: args[0] + '/search-compact'},
+        {title: 'you t u b e — YouTube guide', url: args[0] + '/search-literal'},
+        {title: 'm' + '.'.repeat(80) + ' Mozilla', url: args[0] + '/search-alignment'},
+        {title: 'Mozilla', url: args[0] + '/search-alignment-copy'},
+        {title: 'Notes', url: args[0] + '/?label=YouTube'},
+      ];
+      const tabs = [];
+      for (const row of rows) tabs.push(await browser.tabs.create({...row, active: false, discarded: true}));
+      return tabs.map(tab => tab.id);
+    `, base, loose);
+    const resultIds = () => driver.executeScript('return [...document.querySelectorAll("#results [data-activate]")].map(el => Number(el.dataset.activate));');
+    const search = async (text, count) => {
+      const field = await driver.findElement(By.id('search'));
+      await field.clear();
+      await field.sendKeys(text);
+      assert.match(await driver.findElement(By.id('result-count')).getText(), new RegExp(`^${count} matches /`));
+    };
+    try {
+      await driver.wait(async () => (await driver.findElement(By.id('result-count')).getText()).includes('1003 tabs'), 10000);
+      await search('youtube', 4);
+      assert.deepEqual(await resultIds(), [fixtures[2], fixtures[4], fixtures[7], fixtures[3]]);
+      await writeFile('artifacts/search-relevance.png', await driver.takeScreenshot(), 'base64');
+      await search('mzla', 2);
+      assert.deepEqual(await resultIds(), [fixtures[5], fixtures[6]]);
+      await search('ytb', 4);
+      assert.deepEqual((await resultIds()).sort((a, b) => a - b), [fixtures[2], fixtures[3], fixtures[4], fixtures[7]]);
+    } finally {
+      await invoke('return browser.tabs.remove(args[0]);', fixtures);
+    }
+  });
 });

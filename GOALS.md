@@ -8,7 +8,7 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 
 1. Open a keyboard-first command palette over a normal web page. Use a popup on pages where Firefox blocks overlays.
 2. Switch between recent tabs, pinned tabs, and all tabs. Activate the previous tab with a command.
-3. Search titles and URLs with fuzzy matching. Combine filters for window, host, pinned, discarded, audible, duplicates, and age.
+3. Search titles and complete URLs with fuzzy matching. Find the best alignment and exclude weak matches. Put literal matches first in relevance order. Apply one algorithm to all searchable text. Combine filters for window, host, pinned, discarded, audible, duplicates, and age.
 4. Sort by relevance, last access, title, host, and tab order. Show counts and tab state.
 5. Select one tab, a range, or all matching tabs. Keep selection independent of the visible page.
 6. Pin, unpin, mute, unmute, discard, and close selected tabs. Require confirmation to close. Protect pinned tabs by default. Report failures.
@@ -22,7 +22,7 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 | ID | Test | Required evidence |
 | --- | --- | --- |
 | A01 | A fixture with 995 tabs can be searched and sorted. A query takes less than 200 ms in a warmed model test. | Model test and Firefox fixture |
-| A02 | Fuzzy search matches title and URL. Filters combine. All sort options produce the expected order. | Model tests |
+| A02 | Strong fuzzy search matches titles and complete URLs. Weak, widely separated matches are excluded. The best alignment wins; literal matches come first in relevance order. Filters combine and explicit sorts keep their order. | Model and Firefox tests |
 | A03 | Recent and pinned modes work. The previous-tab command switches to the last active tab in the current window. | Service, DOM, and Firefox tests |
 | A04 | A command opens an isolated overlay. Escape removes it and restores focus. Restricted-page injection failure opens a popup. | Firefox tests |
 | A05 | Keyboard arrows change the active result. Enter activates it. Mode and manager commands are visible. | DOM and Firefox tests |
@@ -44,6 +44,6 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 
 ## Results
 
-All 13 automated or documentation acceptance checks pass. `npm run verify` passes 25 tests and reports no lint errors, warnings, or notices. The Firefox suite passes 12 tests with a 995-tab fixture and layout checks in Firefox 143.0. Build, ZIP validation, and the full dependency audit pass. See `docs/TESTING.md` for the acceptance map and environment.
+All 13 automated or documentation acceptance checks pass. `npm run verify` passes 34 tests and reports no lint errors, warnings, or notices. The Firefox suite passes 13 tests with a 995-tab fixture and layout checks in Firefox 143.0. Build, ZIP validation, and the full dependency audit pass. See `docs/TESTING.md` for the acceptance map and environment.
 
 The platform boundaries above still apply. Signed installation, optional profile CSS, screen-reader checks, and the user's Tree Style Tab and Auto Tab Discard rules are manual release checks. They are not claimed as completed.

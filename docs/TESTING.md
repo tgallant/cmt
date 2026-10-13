@@ -27,8 +27,8 @@ The test driver is geckodriver 0.37.1. You can set `GECKODRIVER_VERSION` to test
 
 Verified on macOS ARM64 with Node.js 26.10.0, Firefox 143.0, and geckodriver 0.37.1.
 
-- Model, service, access, manifest, and interface tests: 25 passed.
-- Real Firefox acceptance tests: 12 passed, including the parent test.
+- Model, service, access, manifest, and interface tests: 34 passed.
+- Real Firefox acceptance tests: 13 passed, including the parent test.
 - Mozilla add-on lint: 0 errors, 0 warnings, 0 notices.
 - Dependency audit: 0 known vulnerabilities, including development tools.
 - Build and ZIP creation: passed.
@@ -59,12 +59,27 @@ The layout checks use Firefox's real control sizes and scroll measurements, not 
 
 These tests reproduce the reported height mismatch and outer scrollbar before the fix. They check normal, short, and narrow layouts. They do not prove that every screen size, font setting, or zoom level fits. The manual zoom and screen-reader checks below still apply.
 
+## Search relevance regression checks
+
+The original matcher accepted any completed subsequence. It capped each gap penalty and chose the first alignment. Regression tests first reproduced extra results and incorrect ordering. Firefox showed six matches where four were expected.
+
+- Titles and complete URLs use the same best-alignment algorithm. No URL formats or URL fields are excluded.
+- Every skipped character reduces the score. A fuzzy match must reach 65% of the reference score for a contiguous, word-start match of the same length.
+- Literal query words rank first with relevance sort. A later strong alignment is not weakened by an earlier poor one.
+- `ffdoc` and `mzla docs` still work. Compact fuzzy matches work in hosts, paths, query strings, fragments, and text that is not a valid URL.
+- Empty searches, missing fields, all-word matching, stable ties, and explicit sort order are checked.
+- An independent exhaustive scorer checks the result order for 2,500 generated query/text cases. It enumerates alignments instead of using the production algorithm's score rows.
+- A warmed 995-tab noisy-URL fixture keeps only the genuine YouTube match. It remains below the 200 ms limit; the test prints each measured time.
+- Firefox checks actual result IDs for `youtube`, `mzla`, and `ytb` among 1,003 disposable tabs, then removes the eight added test tabs. `artifacts/search-relevance.png` shows the literal matches before the compact fuzzy match. This image was reviewed.
+
+The cutoff is a text-match rule, not a semantic judgment about the page. Closely matching text can still describe a different topic. These checks use synthetic data, not the user's tab list.
+
 ## Acceptance map
 
 | Test | Evidence |
 | --- | --- |
 | A01 | `tests/model.test.js`; Firefox 995-tab fixture |
-| A02 | Fuzzy search, combined filters, and each sort in `tests/model.test.js` |
+| A02 | Best alignment, weak-match cutoff, full-URL matching, literal-first relevance, combined filters, and explicit sorts in `tests/model.test.js`; real Firefox search result IDs |
 | A03 | Mode tests in model and interface tests; real previous-tab shortcut and pinned view in Firefox |
 | A04 | Real palette shortcut, closed shadow root, Escape, focus restoration, and restricted-page popup |
 | A05 | Arrow, Enter, and view-key interface tests; real Enter activation and visible mode controls |
