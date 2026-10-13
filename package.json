@@ -1,0 +1,22 @@
+{
+  "name": "cmt",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A keyboard-first Firefox tab manager",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "build": "node scripts/build.mjs",
+    "lint": "web-ext lint --source-dir dist --warnings-as-errors",
+    "verify": "npm test && npm run build && npm run lint",
+    "test:firefox": "node --test --test-concurrency=1 tests/browser/firefox.test.js",
+    "package": "npm run build && web-ext build --source-dir dist --artifacts-dir artifacts --filename cmt.zip --overwrite-dest"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^26.0.0",
+    "selenium-webdriver": "^4.35.0",
+    "geckodriver": "^6.0.0",
+    "web-ext": "^8.9.0"
+  }
+}
