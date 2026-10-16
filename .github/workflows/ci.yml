@@ -24,6 +24,7 @@ jobs:
           FIREFOX_BINARY: ${{ steps.firefox.outputs.firefox-path }}
       - run: npm audit
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: cmt-unsigned
           path: artifacts/

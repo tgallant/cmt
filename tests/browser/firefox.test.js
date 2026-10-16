@@ -68,7 +68,15 @@ test('Firefox acceptance: real tabs, keyboard palette, fallback, and 995 tabs', 
   async function setViewport(width, height) {
     const chromeSize = await driver.executeScript('return {width: outerWidth - innerWidth, height: outerHeight - innerHeight};');
     await driver.manage().window().setRect({ width: width + chromeSize.width, height: height + chromeSize.height });
-    await driver.wait(async () => driver.executeScript('return Math.abs(innerWidth - arguments[0]) <= 1 && Math.abs(innerHeight - arguments[1]) <= 1;', width, height), 10000);
+    try {
+      await driver.wait(async () => driver.executeScript('return Math.abs(innerWidth - arguments[0]) <= 1 && Math.abs(innerHeight - arguments[1]) <= 1;', width, height), 10000, `Viewport must reach ${width}×${height}`);
+    } catch (error) {
+      const actual = await driver.executeScript('return {url: location.href, innerWidth, innerHeight, outerWidth, outerHeight, readyState: document.readyState, results: document.querySelectorAll(".tab-row").length};');
+      console.log('Viewport failure:', JSON.stringify({ requested: { width, height }, actual }));
+      await writeFile('artifacts/viewport-failure.json', JSON.stringify({ requested: { width, height }, actual }, null, 2));
+      await writeFile('artifacts/viewport-failure.png', await driver.takeScreenshot(), 'base64');
+      throw error;
+    }
   }
   async function layout() {
     return driver.executeScript(`
@@ -284,9 +292,12 @@ test('Firefox acceptance: real tabs, keyboard palette, fallback, and 995 tabs', 
 
   await t.test('popup filters, help, and failure details fit without a page scrollbar', async () => {
     await driver.switchTo().defaultContent();
+    console.log('Popup layout: load document');
     await driver.get(`${origin}/popup.html`);
+    console.log('Popup layout: resize viewport');
     await setViewport(760, 590);
-    await driver.wait(until.elementLocated(By.css('.tab-row')), 10000);
+    console.log('Popup layout: wait for results');
+    await driver.wait(until.elementLocated(By.css('.tab-row')), 10000, 'Popup result rows must load');
     assertFits(await layout());
     await driver.findElement(By.css('#filters summary')).click();
     assertFits(await layout());
