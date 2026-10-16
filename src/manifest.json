@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "CMT — Tab Console",
+  "name": "CMT — Close My Tabs",
   "version": "0.1.0",
-  "description": "Search, switch, and clean up open tabs with a keyboard-first tab console.",
+  "description": "Search, switch, and clean up open tabs with Close My Tabs.",
   "browser_specific_settings": {
     "gecko": {
       "id": "cmt@local.example",
@@ -12,7 +12,7 @@
   },
   "permissions": ["tabs", "activeTab"],
   "background": { "scripts": ["background.js"], "persistent": true },
-  "browser_action": { "default_title": "Open CMT tab console", "default_popup": "popup.html" },
+  "browser_action": { "default_title": "Open CMT — Close My Tabs", "default_popup": "popup.html" },
   "commands": {
     "open-palette": { "suggested_key": { "default": "Alt+Shift+K", "mac": "MacCtrl+Shift+K" }, "description": "Open the tab palette" },
     "previous-tab": { "suggested_key": { "default": "Alt+Shift+J", "mac": "MacCtrl+Shift+J" }, "description": "Switch to the previous tab" }

@@ -6,7 +6,7 @@ export async function mountUI(doc, api) {
   const root = doc.querySelector('#app');
   // This template has no tab data. Untrusted values use textContent below.
   root.innerHTML = `
-    <header><h1>CMT <span>/ tab console</span></h1><button id="manager">Open manager</button><button id="dismiss" aria-label="Close palette">Esc</button></header>
+    <header><h1>CMT <span>/ Close My Tabs</span></h1><button id="manager">Open manager</button><button id="dismiss" aria-label="Close palette">Esc</button></header>
     <nav aria-label="Tab view"><button data-mode="all" aria-pressed="true">1 All</button><button data-mode="recent" aria-pressed="false">2 Recent</button><button data-mode="pinned" aria-pressed="false">3 Pinned</button><button id="previous-tab">Previous tab</button></nav>
     <label class="search-label" for="search">Search titles and URLs</label><input id="search" type="search" autocomplete="off" spellcheck="false" placeholder="Type letters in order…" aria-controls="results">
     <details id="filters"><summary>Filters and sort</summary><div class="filter-grid">

@@ -2,7 +2,7 @@
 
 ## Product
 
-CMT is a local-only Firefox tab manager. Read `GOALS.md` and `docs/plans/2026-10-12-tab-management.md` before changes. The user has about 995 tabs and uses Tree Style Tab and Auto Tab Discard. Do not require a sidebar. Do not change tree relationships or another extension's settings. Never use the user's Firefox profile for tests.
+CMT means Close My Tabs. It is a local-only Firefox tab manager. Read `GOALS.md` and `docs/plans/2026-10-12-tab-management.md` before changes. The user has about 995 tabs and uses Tree Style Tab and Auto Tab Discard. Do not require a sidebar. Do not change tree relationships or another extension's settings. Never use the user's Firefox profile for tests.
 
 ## Writing
 

@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A keyboard-first Firefox tab manager",
+  "description": "Close My Tabs: a keyboard-first Firefox tab manager",
+  "homepage": "https://github.com/tgallant/cmt#readme",
+  "repository": { "type": "git", "url": "https://github.com/tgallant/cmt.git" },
+  "bugs": { "url": "https://github.com/tgallant/cmt/issues" },
   "scripts": {
     "test": "node --test tests/*.test.js",
     "build": "node scripts/build.mjs",

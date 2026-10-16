@@ -89,8 +89,16 @@ The cutoff is a text-match rule, not a semantic judgment about the page. Closely
 | A09 | Unknown age, stale identifier, partial batch, and protected discard tests |
 | A10 | Title escaping, live private-data fixture, overlay authorization, minimal manifest, and source review |
 | A11 | Test commands, build, lint, ZIP content check, and audit |
-| A12 | Review of `README.md`, `docs/CHROME.md`, and the CSS warnings |
+| A12 | Review of `README.md`, `docs/RELEASING.md`, `docs/CHROME.md`, and the CSS warnings |
 | A13 | Firefox field dimensions, document and main overflow, independently scrollable results, visible page buttons, and layout screenshots |
+
+## Branding and release records
+
+CMT means Close My Tabs. The README, add-on name, toolbar label, interface header, page titles, and palette frame label use this name. The add-on ID and permissions are unchanged. The same 34 unit/interface tests and 13 Firefox checks apply after the name changes.
+
+[RELEASING.md](RELEASING.md) explains listed and unlisted signing, the separate source upload, reviewer build commands, privacy declarations, licensing, and signed installation. These steps do not claim that Mozilla has received or approved CMT. The publisher must still select a license and complete the manual release checks.
+
+Local root-level screenshots are ignored because they can contain private tab data. Build output, test screenshots, dependencies, and agent session files remain excluded from Git. A source archive made with `git archive` contains tracked files only.
 
 ## Manual checks before a large cleanup
 

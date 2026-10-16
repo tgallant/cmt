@@ -4,3 +4,5 @@ artifacts/
 .pi/
 *.log
 .DS_Store
+# Local screenshots can contain private tab data.
+/screen*.png

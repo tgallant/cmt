@@ -1,6 +1,6 @@
-# CMT — Tab Console
+# CMT — Close My Tabs
 
-CMT is a Firefox extension for people who keep many tabs open. It has a small command palette and a full tab manager. It does not need a sidebar.
+CMT means **Close My Tabs**. It is a Firefox extension for people who keep many tabs open. It has a small command palette and a full tab manager. It does not need a sidebar.
 
 The interface uses a dark background, a monospace font, and clear borders. All tab data stays on your device. CMT does not send data to a server.
 
@@ -17,7 +17,17 @@ Use desktop Firefox 142 or later. Use Node.js 26 for the build tools.
 
 This installation ends when Firefox closes. Load the extension again after a restart. It uses your existing tabs. It does not import or copy them.
 
-For a permanent installation, run `npm run package`. Submit `artifacts/cmt.zip` to Mozilla for signing. Normal Firefox needs a signed extension. This project does not include a signed release.
+## Install permanently
+
+Normal Firefox needs a Mozilla-signed extension. A public GitHub repository or an unsigned ZIP is not enough. This project does not include a signed release yet.
+
+You can get CMT signed without putting it in the public Firefox add-on store. Submit it to Mozilla for **self-distribution**, then install the signed `.xpi` file. This installation survives browser restarts. For public discovery and managed updates, publish a listing on addons.mozilla.org instead.
+
+See [the release guide](docs/RELEASING.md) for both routes, the source upload, and the remaining release checks.
+
+## Project
+
+The repository address is [github.com/tgallant/cmt](https://github.com/tgallant/cmt). Use [GitHub issues](https://github.com/tgallant/cmt/issues) for bug reports. Do not attach screenshots or tab URLs that contain private information.
 
 ## Open CMT
 

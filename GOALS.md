@@ -2,6 +2,8 @@
 
 ## Scope
 
+CMT means Close My Tabs.
+
 Manage at least 995 open Firefox tabs. Keep many tabs open without a required tab bar or sidebar. Make cleanup deliberate and safe. Keep all tab data on this device.
 
 ## Goals
@@ -32,7 +34,7 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 | A09 | Age uses last access. Unknown times do not count as old. Stale tabs and partial failures do not abort the full action. | Model and service tests |
 | A10 | Untrusted titles appear as text. Private-tab metadata is not stored. No network services or host access at startup are required. | DOM, service, manifest tests, and code review |
 | A11 | Build, unit tests, Firefox tests, and manifest lint pass. The ZIP contains all runtime files. | Verification commands |
-| A12 | User instructions cover install, shortcuts, safety, permissions, chrome hiding, rollback, and Firefox limits in plain language. | Documentation review |
+| A12 | User instructions define Close My Tabs and cover temporary install, Mozilla signing, source submission, shortcuts, safety, permissions, chrome hiding, rollback, and Firefox limits in plain language. | Documentation review |
 | A13 | Filter fields have equal size and align in each row. Overlay, popup document, and manager fit the tested viewports with no outer scroll or clipped controls. Results scroll independently. Expanded filters, help, and reports keep page buttons visible. | Firefox geometry and screenshot checks |
 
 ## Platform boundaries
