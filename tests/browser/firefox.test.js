@@ -7,6 +7,7 @@ import { createServer } from 'node:http';
 import { Builder, By, Key, until } from 'selenium-webdriver';
 import firefox from 'selenium-webdriver/firefox.js';
 import { download } from 'geckodriver';
+import { resizeViewport } from './viewport.js';
 
 const uuid = 'c0475f72-7730-46c7-9857-5c49d8a74282';
 const origin = `moz-extension://${uuid}`;
@@ -66,10 +67,8 @@ test('Firefox acceptance: real tabs, keyboard palette, fallback, and 995 tabs', 
     } finally { await driver.setContext('content'); }
   };
   async function setViewport(width, height) {
-    const chromeSize = await driver.executeScript('return {width: outerWidth - innerWidth, height: outerHeight - innerHeight};');
-    await driver.manage().window().setRect({ width: width + chromeSize.width, height: height + chromeSize.height });
     try {
-      await driver.wait(async () => driver.executeScript('return Math.abs(innerWidth - arguments[0]) <= 1 && Math.abs(innerHeight - arguments[1]) <= 1;', width, height), 10000, `Viewport must reach ${width}×${height}`);
+      await resizeViewport(driver, width, height);
     } catch (error) {
       const actual = await driver.executeScript('return {url: location.href, innerWidth, innerHeight, outerWidth, outerHeight, readyState: document.readyState, results: document.querySelectorAll(".tab-row").length};');
       console.log('Viewport failure:', JSON.stringify({ requested: { width, height }, actual }));
@@ -296,6 +295,7 @@ test('Firefox acceptance: real tabs, keyboard palette, fallback, and 995 tabs', 
     await driver.get(`${origin}/popup.html`);
     console.log('Popup layout: resize viewport');
     await setViewport(760, 590);
+    console.log('Popup layout viewport:', await driver.executeScript('return {width: innerWidth, height: innerHeight};'));
     console.log('Popup layout: wait for results');
     await driver.wait(until.elementLocated(By.css('.tab-row')), 10000, 'Popup result rows must load');
     assertFits(await layout());
