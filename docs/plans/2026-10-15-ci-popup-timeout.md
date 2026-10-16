@@ -36,3 +36,13 @@
 2. Review the diff for safety, unchanged permissions, meaningful assertions, and preservation of private local files.
 3. Fast-forward main only after the fix is verified. Push without force.
 4. Wait for the main-branch workflow to finish and check the result. Report a passing run URL only after every required job succeeds.
+
+## Results
+
+- Diagnostic run `38852514051` confirmed that popup loading succeeded: the document was complete and 100 rows were present. The requested viewport was 760 by 590; the actual viewport was 760 by 602, with an outer height of 676.
+- The helper's initial chrome-height measurement was 86 pixels. After resizing, the actual inset was 74 pixels. Waiting alone could not repair this 12-pixel difference.
+- Extracted the viewport helper and observed two failing unit checks before the correction: the observed inset change timed out, and an already correct viewport was still resized.
+- The helper now remeasures and corrects geometry on each bounded wait attempt. Its original ten-second timeout and one-pixel tolerance remain. No extension code, permissions, viewport targets, or layout assertions changed.
+- Five viewport-helper tests cover stable insets, the observed inset change, an already correct viewport, unreachable dimensions, and browser errors. All 39 unit/interface/helper tests and 13 Firefox tests pass locally with Firefox 143.0. Build, lint, audit, and whitespace checks pass.
+- Feature-branch run [38852997344](https://github.com/tgallant/cmt/actions/runs/38852997344) passes all steps on Ubuntu 24.04.5 with Firefox 158.0. It logs a 760-by-590 popup viewport. The failure and passing popup screenshots were reviewed.
+- Diff review confirms that only tests, workflow artifact handling, and documentation changed. The final integration gate is a passing workflow on `main`.

@@ -25,9 +25,9 @@ The test driver is geckodriver 0.37.1. You can set `GECKODRIVER_VERSION` to test
 
 ## Evidence
 
-Verified on macOS ARM64 with Node.js 26.10.0, Firefox 143.0, and geckodriver 0.37.1.
+Verified on macOS ARM64 with Node.js 26.10.0, Firefox 143.0, and geckodriver 0.37.1. GitHub Actions also passed on Ubuntu 24.04.5 with Firefox 158.0. The [first passing Linux run](https://github.com/tgallant/cmt/actions/runs/38852997344) includes the browser tests, audit, and artifact upload.
 
-- Model, service, access, manifest, and interface tests: 34 passed.
+- Model, service, access, manifest, interface, and viewport-helper tests: 39 passed.
 - Real Firefox acceptance tests: 13 passed, including the parent test.
 - Mozilla add-on lint: 0 errors, 0 warnings, 0 notices.
 - Dependency audit: 0 known vulnerabilities, including development tools.
@@ -41,7 +41,7 @@ The Firefox tests use real keyboard events for the palette and previous-tab comm
 
 A packed temporary installation through geckodriver produced content-script file-descriptor errors on this macOS system. The test installs the unpacked `dist/` folder through Firefox's temporary add-on API. It separately checks the ZIP contents. This is the same build used in the installation guide. These tests do not prove signed ZIP installation.
 
-Firefox Developer Edition 156.0 was present, but it had intermittent startup failures in this environment. The final browser evidence uses a separate Firefox 143.0 copy and a fresh profile. No user profile was used. Do not treat the initial startup failures as passing checks.
+Firefox Developer Edition 156.0 was present, but it had intermittent startup failures in this environment. The local browser evidence uses a separate Firefox 143.0 copy and a fresh profile. Linux CI uses the workflow's latest Firefox, observed as 158.0 in the passing run. No user profile was used. Do not treat the initial startup failures as passing checks.
 
 ## Layout regression checks
 
@@ -58,6 +58,16 @@ The layout checks use Firefox's real control sizes and scroll measurements, not 
 - Help and failure reports open above the page buttons. Only one report panel is open at a time.
 
 These tests reproduce the reported height mismatch and outer scrollbar before the fix. They check normal, short, and narrow layouts. They do not prove that every screen size, font setting, or zoom level fits. The manual zoom and screen-reader checks below still apply.
+
+## Linux CI viewport regression
+
+The first Linux run timed out before the popup layout assertions. The popup had loaded 100 result rows. Its viewport was 760 by 602 pixels, not the requested 760 by 590. The browser chrome height changed from 86 to 74 pixels during resizing. The helper had used one initial measurement and then waited on a size that it never corrected.
+
+`tests/browser/viewport.js` now measures the actual inner and outer sizes on each wait attempt. It corrects the window size until the requested viewport is reached. The original ten-second limit and one-pixel tolerance are unchanged. The popup still uses 760 by 590 pixels. No layout assertions were removed, no older CI browser was selected, and no extension code or permissions changed.
+
+Five regressions in `tests/viewport.test.js` cover stable chrome, the observed 12-pixel inset change, an already correct viewport, an unreachable size, and resize errors. They fake only the remote geometry and use Selenium's real condition wait. The inset-change regression failed with the original helper, then passed with the correction.
+
+CI logs report the reached popup dimensions. Resize failures save a screenshot and requested/actual geometry. The workflow uploads synthetic test artifacts even after a failing browser step. The initial failure screenshot and the passing Linux popup screenshot were reviewed. Screenshots from the passing run can be downloaded from its `cmt-unsigned` artifact.
 
 ## Search relevance regression checks
 
@@ -94,7 +104,7 @@ The cutoff is a text-match rule, not a semantic judgment about the page. Closely
 
 ## Branding and release records
 
-CMT means Close My Tabs. The README, add-on name, toolbar label, interface header, page titles, and palette frame label use this name. The add-on ID and permissions are unchanged. The same 34 unit/interface tests and 13 Firefox checks apply after the name changes.
+CMT means Close My Tabs. The README, add-on name, toolbar label, interface header, page titles, and palette frame label use this name. The add-on ID and permissions are unchanged. Branding changes do not change tab actions or search rules.
 
 [RELEASING.md](RELEASING.md) explains listed and unlisted signing, the separate source upload, reviewer build commands, privacy declarations, licensing, and signed installation. These steps do not claim that Mozilla has received or approved CMT. The publisher must still select a license and complete the manual release checks.
 

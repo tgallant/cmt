@@ -28,7 +28,7 @@ Keep exact URL equality for duplicates. Prefer pinned and active tabs as duplica
 
 ## Browser test notes
 
-Use `FIREFOX_BINARY` for a separate Firefox executable when the installed browser is unstable. The verified browser is Firefox 143.0. Tests install unpacked `dist/` through Firefox's temporary add-on API and validate the ZIP separately. Packed temporary geckodriver installs had content-script file-descriptor errors on macOS. Use the command event's tab argument. Open known restricted-page popups before an async wait. macOS global shortcuts use MacCtrl, not Option, to avoid text composition. Inner view shortcuts use Control/Command+Shift+1/2/3 because Control/Command+1/2/3 is reserved for Firefox tabs.
+Use `FIREFOX_BINARY` for a separate Firefox executable when the installed browser is unstable. Verified browsers include Firefox 143.0 on macOS and Firefox 158.0 on Ubuntu CI. Use `tests/browser/viewport.js` to reach layout viewports: native browser chrome insets can change during resize, so remeasure and correct them within the bounded wait. Keep the exact viewport checks; do not mask resize failures with larger test dimensions or longer timeouts. Tests install unpacked `dist/` through Firefox's temporary add-on API and validate the ZIP separately. Packed temporary geckodriver installs had content-script file-descriptor errors on macOS. Use the command event's tab argument. Open known restricted-page popups before an async wait. macOS global shortcuts use MacCtrl, not Option, to avoid text composition. Inner view shortcuts use Control/Command+Shift+1/2/3 because Control/Command+1/2/3 is reserved for Firefox tabs.
 
 ## Commands
 

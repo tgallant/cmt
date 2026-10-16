@@ -168,7 +168,7 @@ When you close a parent tab, Tree Style Tab applies its own close rules. These r
 
 ## Development
 
-- `npm test`: run model, service, access, manifest, and interface tests.
+- `npm test`: run model, service, access, manifest, interface, and viewport-helper tests.
 - `npm run verify`: run tests, build, and Mozilla manifest lint.
 - `npm run test:firefox`: build a ZIP and run Firefox acceptance tests in a new test profile.
 - `npm run package`: create `artifacts/cmt.zip`.

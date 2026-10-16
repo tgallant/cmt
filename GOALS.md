@@ -46,6 +46,6 @@ Manage at least 995 open Firefox tabs. Keep many tabs open without a required ta
 
 ## Results
 
-All 13 automated or documentation acceptance checks pass. `npm run verify` passes 34 tests and reports no lint errors, warnings, or notices. The Firefox suite passes 13 tests with a 995-tab fixture and layout checks in Firefox 143.0. Build, ZIP validation, and the full dependency audit pass. See `docs/TESTING.md` for the acceptance map and environment.
+All 13 automated or documentation acceptance checks pass. `npm run verify` passes 39 tests and reports no lint errors, warnings, or notices. The Firefox suite passes 13 tests with a 995-tab fixture and layout checks in Firefox 143.0 on macOS and Firefox 158.0 on Ubuntu CI. The viewport-helper regressions preserve the 760-by-590 popup check when browser chrome insets change. Build, ZIP validation, and the full dependency audit pass. See `docs/TESTING.md` for the acceptance map and environment.
 
 The platform boundaries above still apply. Signed installation, optional profile CSS, screen-reader checks, and the user's Tree Style Tab and Auto Tab Discard rules are manual release checks. They are not claimed as completed.
